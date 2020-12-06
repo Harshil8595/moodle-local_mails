@@ -1,0 +1,89 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_mails/notification_area
+
+    This template will render the notification area on the notifications
+    page.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * All data attributes are required
+
+    Context variables required for this template:
+    * userid The logged in user id
+    * offset The offset amound of the notification list
+    * limit The limit amount for the notification list
+    * id The specific notification to select
+
+    Example context (json):
+    {
+        "userid":3
+    }
+
+}}
+<div class="container mt-5">
+    <div id="mails-{{uniqid}}" class="email-app card-margin" data-region="mails-area" data-user-id="{{userid}}" data-type="{{types.receiver}}">
+        <div class="email-list-wrapper" data-region="control-area">
+            <ul class="nav nav-tabs">
+                <li class="nav-item active" data-type="{{types.receiver}}">{{#pix}}inbox,local_mails{{/pix}} {{#str}}typereceiver,local_mails{{/str}}</li>
+                <li class="nav-item" data-type="{{types.sender}}">{{#pix}}send,local_mails{{/pix}} {{#str}}typesender,local_mails{{/str}}</li>
+                {{#canseeall}}<li class="nav-item" data-type="{{types.all}}">{{#pix}}star,local_mails{{/pix}} {{#str}}typeall,local_mails{{/str}}</li>{{/canseeall}}
+            </ul>
+            <div id="email-app-body">
+                <div class="email-list" data-region="content"></div>
+                <div class="empty-text">{{#str}} selectnotificationtoview, message {{/str}}</div>
+                {{> core/loading }}
+            </div>
+        </div>
+        <div class="email-desc-wrapper" data-region="content-area">
+            <div class="toggle-mode">
+                <button class="btn btn-link" data-action="toggle-mode">{{#str}} back {{/str}}</button>
+            </div>
+            <div data-region="header"></div>
+            <div data-region="content"></div>
+            <div class="empty-text">{{#str}} selectnotificationtoview, message {{/str}}</div>
+            <div data-region="footer"></div>
+        </div>
+    </div>
+</div>
+{{#js}}
+require(['jquery', 'local_mails/notification_area_control_area', 'local_mails/notification_area_content_area'],
+    function($, ControlArea, ContentArea) {
+
+    var userId = {{userid}};
+    var controlArea = new ControlArea($('#mails-{{uniqid}} [data-region="control-area"]'), userId);
+    {{#offset}}
+    controlArea.setOffset({{.}});
+    {{/offset}}
+    {{#limit}}
+    controlArea.setLimit({{.}});
+    {{/limit}}
+    {{#id}}
+    controlArea.loadMoreNotifications().done(function() {
+        controlArea.showNotification({{.}});
+    });
+    {{/id}}
+    {{^id}}
+    controlArea.loadMoreNotifications();
+    {{/id}}
+
+    new ContentArea($('#mails-{{uniqid}} [data-region="content-area"]'), userId);
+});
+{{/js}}

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>vendor/zbateson/mail-mime-parser</location>
+    <name>zbateson/mail-mime-parser</name>
+    <license>BSD</license>
+    <version>1.2.2</version>
+    <licenseversion></licenseversion>
+  </library>
+</libraries>

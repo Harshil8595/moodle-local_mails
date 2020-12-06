@@ -1,0 +1,90 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_mails/notification_popover
+
+    This template will render the notification popover for the navigation bar.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * All data attributes are required
+
+    Context variables required for this template:
+    * userid the logged in user id
+    * urls The URLs for the popover
+
+    Example context (json):
+    {
+        "userid": 3,
+        "urls": {
+            "preferences": "http://www.moodle.com"
+        }
+    }
+
+}}
+{{< core/popover_region }}
+    {{$classes}}popover-region-notifications{{/classes}}
+    {{$attributes}}id="nav-mails-popover-container" data-userid="{{userid}}"{{/attributes}}
+
+    {{$togglelabel}}{{#str}} shownotificationwindownonew, message {{/str}}{{/togglelabel}}
+    {{$togglecontent}}
+        {{#pix}} icon, local_mails, {{#str}} togglenotificationmenu, message {{/str}} {{/pix}}
+        <div class="count-container bg-primary {{^unreadcount}}hidden{{/unreadcount}}" data-region="mails-count-container"
+             aria-label="{{#str}} unreadnotifications, core_message, {{unreadcount}} {{/str}}">{{unreadcount}}</div>
+    {{/togglecontent}}
+
+    {{$containerlabel}}{{#str}} notificationwindow, message {{/str}}{{/containerlabel}}
+
+    {{$headertext}}{{#str}} pluginname, local_mails {{/str}}{{/headertext}}
+    {{$headeractions}}
+        <a class="mails-mark-all-read-button"
+           href="#"
+           title="{{#str}} markallread {{/str}}"
+           data-action="mails-mark-all-read"
+           role="button"
+           aria-label="{{#str}} markallread {{/str}}">
+            <span class="normal-icon">{{#pix}} t/markasread, core {{/pix}}</span>
+            {{> core/loading }}
+        </a>
+        <a class="mails-close-button"
+           href="#"
+           title="{{#str}} collapse {{/str}}"
+           data-action="mails-close"
+           role="button"
+           aria-label="{{#str}} close {{/str}}">
+            <span class="normal-icon">{{#pix}} close, local_mails {{/pix}}</span>
+        </a>
+    {{/headeractions}}
+    {{$content}}
+        {{> local_mails/notification_area }}
+    {{/content}}
+{{/ core/popover_region }}
+{{#js}}
+require(['jquery', 'local_mails/notification_popover_controller'], function($, controller) {
+    var container = $('#nav-mails-popover-container');
+    var controller = new controller(container);
+    controller.registerEventListeners();
+    //controller.registerListNavigationEventListeners();
+    container.on('click','[data-action="mails-close"]',function(e){
+        e.preventDefault();
+        controller.closeMenu();
+        controller.addClass('collapsed');
+    })
+});
+{{/js}}
